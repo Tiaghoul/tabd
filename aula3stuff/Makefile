@@ -1,4 +1,4 @@
-PROGRAM=db_connect
+PROGRAM=db_functions
 CC=clang -Wall -g
 default:
 	$(CC) -shared -fPIC `mysql_config --cflags` -c $(PROGRAM).c
