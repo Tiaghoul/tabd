@@ -2,6 +2,7 @@
 #include <mysql/mysql.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 
 int c_db_descri(void){
@@ -74,24 +75,33 @@ int c_db_row(void){
 	YAP_Term args = YAP_ARG2;
 	YAP_Term head;
 	MYSQL_ROW row;
-	MYSQL_RES *resul_set = (MYSQL_RES *) YAP_IntOfTerm(rs);
-	int arity = mysql_num_fields(resul_set);
-	if((row = mysql_fetch_row(resul_set)) != NULL){
+	MYSQL_RES *result_set = (MYSQL_RES *) YAP_IntOfTerm(rs);
+	int arity = mysql_num_fields(result_set);
+
+	if((row = mysql_fetch_row(result_set)) != NULL){
 		for(int i = 0; i< arity; i++){
 			head = YAP_HeadOfTerm(args);
 			args = YAP_TailOfTerm(args);
-			if(!YAP_Unify(head, YAP_MkAtomTerm(YAP_LookupAtom(row[i])))){
-				return FALSE;
+
+			char c = row[i][0];
+			if (isdigit(c)){
+				int x = c - '0';
+				if(!YAP_Unify(head, YAP_MkIntTerm(x))){
+					return FALSE;
+				}
+
 			}
-			printf("ola2\n");
+			else{
+				if(!YAP_Unify(head, YAP_MkAtomTerm(YAP_LookupAtom(row[i])))){
+					return FALSE;
+				}
+			}
 
 		}
-		printf("ola3\n");
 		return TRUE;
 	}
 	else{
-		mysql_free_result(resul_set);
-		printf("ola4\n");
+		mysql_free_result(result_set);
 		YAP_cut_fail();
 		return FALSE;
 	}
@@ -111,7 +121,6 @@ int c_db_query(void){
 	if(!YAP_Unify(rs, YAP_MkIntTerm((int) res_set))){
 		return FALSE;
 	}
-	printf("ola1\n");
 	return TRUE;
 }
 
@@ -124,7 +133,7 @@ int c_db_arity(void){
 	MYSQL *conn = (MYSQL *) YAP_IntOfTerm(handler);
 	char query[80] = "SELECT * FROM ";
 	strcat(query, YAP_AtomName(YAP_AtomOfTerm(relation)));
-	strcat(query, " limit 1");
+	strcat(query, " limit 0");
 	mysql_query(conn, query);
 	MYSQL_RES *res_set = mysql_store_result(conn);
 	int num_fields = mysql_num_fields(res_set);
@@ -157,6 +166,7 @@ int c_db_connect(void) {
 	char *host = (char *) YAP_AtomName(YAP_AtomOfTerm(arg_host));
 	char *user = (char *) YAP_AtomName(YAP_AtomOfTerm(arg_user));
 	char *passwd = (char *) YAP_AtomName(YAP_AtomOfTerm(arg_passwd));
+
 
 	char *database = (char *) YAP_AtomName(YAP_AtomOfTerm(arg_database));
 	conn = mysql_init(NULL);

@@ -14,8 +14,7 @@ db_import(Pred, Relation, Connection):-
 	db_arity(Handler, Relation, Arity),
 	functor(P, Pred, Arity),
 	P =.. [Pred|Args],
-	atom_concat('select * from ', Relation, SQL1),
-	atom_concat(SQL1, ' limit 5', SQL),
+	atom_concat('select * from ', Relation, SQL),
 	write(SQL),
 	assertz(':-'(P, ','(db_query(Handler,SQL,RS), db_row(RS,Args)))).
 
@@ -24,3 +23,7 @@ db_describe(Relation, Connection):-
 	get_value(Connection, Handler),
 	atom_concat('describe ', Relation, SQL),
 	db_descri(SQL, Handler).
+
+
+% db_sql_select(SQL,Conn,L):-
+% 	get_value(Connection, Handler),

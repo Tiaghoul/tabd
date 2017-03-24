@@ -2,4 +2,4 @@ PROGRAM=tabd2ex1
 CC=clang -Wall -g
 default:
 	$(CC) `mysql_config --cflags` -c $(PROGRAM).c
-	$(CC) `mysql_config --libs` -o progname $(PROGRAM).o
+	$(CC) `mysql_config --libs` -o $(PROGRAM) $(PROGRAM).o
