@@ -1,6 +1,6 @@
 :- load_foreign_files(['db_functions'], [], init_my_predicates).
 
-db_open(Host,User,Passwd,Database,ConnName):-
+db_open(Host, User, Passwd, Database, ConnName):-
 	db_connect(Host,User,Passwd,Database,ConnHandler),
 	set_value(ConnName,ConnHandler).
 
@@ -25,5 +25,7 @@ db_describe(Relation, Connection):-
 	db_descri(SQL, Handler).
 
 
-% db_sql_select(SQL,Conn,L):-
-% 	get_value(Connection, Handler),
+db_sql_select(SQL, Connection, L):-
+	get_value(Connection, Handler),
+	db_query(Handler, SQL, RS),
+	db_row(RS, L).
