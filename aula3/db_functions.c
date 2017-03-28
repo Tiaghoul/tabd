@@ -1,6 +1,7 @@
 #include "Yap/YapInterface.h"
 #include <mysql/mysql.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -74,38 +75,39 @@ int c_db_row(void){
 	YAP_Term rs = YAP_ARG1;
 	YAP_Term args = YAP_ARG2;
 	YAP_Term head;
+	YAP_Term to_unify;
+
 	MYSQL_ROW row;
 	MYSQL_RES *result_set = (MYSQL_RES *) YAP_IntOfTerm(rs);
 	int arity = mysql_num_fields(result_set);
 
 	if((row = mysql_fetch_row(result_set)) != NULL){
 		for(int i = 0; i< arity; i++){
+			MYSQL_FIELD *field = mysql_fetch_field_direct(result_set, i);
+
+			if(field->type == FIELD_TYPE_LONG){
+				to_unify = YAP_MkIntTerm(atoi(row[i]));
+			}
+			else if(field->type == FIELD_TYPE_FLOAT){
+				to_unify = YAP_MkFloatTerm(atof(row[i]));
+			}
+			else{
+				to_unify = YAP_MkAtomTerm(YAP_LookupAtom(row[i]));
+			}
+
 			head = YAP_HeadOfTerm(args);
 			args = YAP_TailOfTerm(args);
 
-			char c = row[i][0];
-			if (isdigit(c)){
-				int x = c - '0';
-				if(!YAP_Unify(head, YAP_MkIntTerm(x))){
-					return FALSE;
-				}
-
+			if(!YAP_Unify(head, to_unify)){
+				return FALSE;
 			}
-			else{
-				if(!YAP_Unify(head, YAP_MkAtomTerm(YAP_LookupAtom(row[i])))){
-					return FALSE;
-				}
-			}
-
 		}
 		return TRUE;
 	}
-	else{
-		mysql_free_result(result_set);
-		YAP_cut_fail();
-		return FALSE;
-	}
 
+	mysql_free_result(result_set);
+	YAP_cut_fail();
+	return FALSE;
 }
 
 
