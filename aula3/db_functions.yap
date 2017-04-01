@@ -9,6 +9,7 @@ db_close(ConnName) :-
 	get_value(ConnName,ConnHandler),
 	db_disconnect(ConnHandler).
 
+
 db_import(Pred, Relation, Connection):-
 	get_value(Connection, Handler),
 	db_arity(Handler, Relation, Arity),

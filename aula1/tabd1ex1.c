@@ -28,7 +28,7 @@ int main(int argc, char const *argv[]) {
 	}
 
 	else{
-		const char * information = mysql_info(conn);
+		const char * information = mysql_info(&conn);
         printf("Success: %s\n",information);
 	}
 	char query[80] = "SELECT * FROM ";
@@ -42,6 +42,7 @@ int main(int argc, char const *argv[]) {
 	printf("num_fields =  %d\n", num_fields);
 
 	printf("|" );
+
 	while((field = mysql_fetch_field(res_set)) != NULL){
 		if(strlen(field->name) < field->max_length){
 			maximo = field->max_length;
@@ -63,7 +64,7 @@ int main(int argc, char const *argv[]) {
 
 	while ((row = mysql_fetch_row(res_set)) != NULL) {
 		printf("|" );
-		for(int j=0; j< num_fields; j++){
+		for(int j=0; j < num_fields; j++){
 			field = mysql_fetch_field_direct(res_set, j);
 			if (IS_NUM(field->type)){
 				printf(" %*s |", array[j], row[j]);
@@ -76,14 +77,14 @@ int main(int argc, char const *argv[]) {
 	}
 
 	printf("+");
-	for(int k=0; k< num_fields; k++){
+	for(int k=0; k < num_fields; k++){
 		printf("%.*s", array[k]+2, "------------------------------------------");
 		printf("+");
 	}
+	printf("\n");
 
 	mysql_free_result(res_set);
 	mysql_close(conn);
-
 
 	return 0;
 }
