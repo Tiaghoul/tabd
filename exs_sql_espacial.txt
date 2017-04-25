@@ -1,0 +1,31 @@
+a) select sum(st_length(geom)) from bc_roads;
+
+b) select st_area(bc_municipality.geom)/10000 from bc_municipality where bc_municipality.name like 'PRINCE GEORGE';
+
+c) elect name from bc_municipality order by st_area(geom) desc limit 1;
+
+d) select st_perimeter(geom) from bc_municipality where name like 'VANCOUVER';
+
+e) select sum(st_area(geom))/10000 from bc_voting_areas;
+
+f) select sum(st_area(geom))/10000 from bc_voting_areas where vregist > 100;
+
+g) select sum(st_length(geom))/1000 from bc_roads where name like 'Douglas St';
+
+h) select sum(bc_voting_areas.unity) from bc_voting_areas, bc_pubs where st_distance(bc_voting_areas.geom, bc_pubs.geom)<2000 and bc_pubs.name like 'Tabor Arms Pub Ltd.';
+
+i) select bc_pubs.name from bc_pubs, bc_hospitals where st_dwithin(bc_pubs.geom, bc_hospitals.geom, 250);
+
+j) select region, sum(ndp), sum(liberal), sum(green), sum(unity) from bc_voting_areas where region like 'Fernie S' group by region;
+
+k) select sum(st_length(bc_roads.geom)) from bc_roads, bc_municipality where bc_roads.name like 'Douglas St' and bc_municipality.name like 'VICTORIA' and st_contains(bc_municipality.geom, bc_roads.geom);
+
+l) select pu.name from bc_pubs as pu where pu.name in(select p.name from bc_pubs as p, bc_voting_areas as va where st_dwithin(va.geom, p.geom, 500) order by va.green limit 2);
+
+m) select name, st_y(geom) from bc_hospitals order by st_ymax(geom) limit 1;
+
+n)
+
+o) select id, st_area(geom) as area from bc_voting_areas where st_nrings(geom) > 1 order by area desc limit 1;
+
+p) select sum(va.ndp) from bc_voting_areas as va, bc_municipality as m, bc_roads as r where m.name = 'VICTORIA' and r.name = 'Simcoe St' and st_dwithin(va.geom, r.geom, 50);
