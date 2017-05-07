@@ -1,21 +1,21 @@
-SELECT  f.title, f.film_id, a.first_name, a.last_name
-	FROM film f JOIN actor a JOIN film_actor ON film.film_id = film_actor.film_id AND actor.actor_id = film_actor.actor_id
-	WHERE f.film_id = 1000 AND a.actor_id IN (SELECT actor.actor_id, COUNT(*) as C
-		FROM film JOIN actor JOIN film_actor ON film.film_id = film_actor.film_id AND actor.actor_id = film_actor.actor_id
-		GROUP BY actor.actor_id ORDER BY C desc
-	)
-	ORDER BY film.film_id;
+-- get all the time variations (hour, day month)
+insert into tempo(hora,dia,mes)
+	select date_part('hour', timestamp) as h, date_part('day', timestamp) as d, date_part('month', timestamp) as m
+	from
+		(select to_timestamp(initial_ts) as timestamp from taxi_services) as S
+	group by h,d,m;
+
+-- get all the taxis (id = n_licenca)
+insert into taxi(n_licenca)
+	select distinct(taxi_id) as id from taxi_services order by id;
+
+-- get all the stands (id and name)
+insert into stand(stand_id, nome, lotacao)
+	select taxi_stands.id, taxi_stands.name, 1 from taxi_stands;
 
 
+maybe???
+select id, freg, conc from (select stand.stand_id as id, caop.freguesia as freg, caop.concelho as conc from stand, caop, taxi_stands where id = taxi_stands.id and st_contains(caop.geom, taxi_stands.location)) as S;
 
 
-
-
-OH YEAAAAH
-SELECT actor.actor_id, first_name, last_name, COUNT(*) as C
-	FROM film JOIN actor JOIN film_actor ON film.film_id = film_actor.film_id AND actor.actor_id = film_actor.actor_id
-	WHERE actor.actor_id IN (SELECT  actor.actor_id
-		FROM film JOIN actor  JOIN film_actor ON film.film_id = film_actor.film_id AND actor.actor_id = film_actor.actor_id
-		WHERE film.film_id = 1000)
-	GROUP BY actor.actor_id ORDER BY C desc
-	LIMIT 1
+-- select stand.stand_id as s, taxi_stands.id as ts from caop, stand, taxi_stands where stand.stand_id = taxi_stands.id and ;
