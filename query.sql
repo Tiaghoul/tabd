@@ -54,6 +54,31 @@ select date_part('hour', to_timestamp(serv.initial_ts)) as hour,
  				and st_contains(ca2.geom, serv.final_point) group by 1,2,3,4,5 order by 6 DESC;
 
 
+
+select date_part('hour', to_timestamp(serv.initial_ts)) as hour,
+ date_part('day', to_timestamp(serv.initial_ts)) as day,
+ date_part('month', to_timestamp(serv.initial_ts)) as month,
+(SELECT tx.id from taxi_stands as tx where st_dwithin(tx.location, serv.initial_point, 100) limit 1),
+(SELECT tx.id from taxi_stands as tx where st_dwithin(tx.location, serv.final_point, 100) limit 1),
+	count(*),  sum(EXTRACT(EPOCH FROM(to_timestamp(serv.final_ts)-to_timestamp(serv.initial_ts)))/60)
+ from taxi_services as serv,
+ where serv.taxi_id=37
+				 group by 1,2,3,4,5 order by 6 DESC;
+
+
+
+select date_part('hour', to_timestamp(serv.initial_ts)) as hour,
+	date_part('day', to_timestamp(serv.initial_ts)) as day,
+	date_part('month', to_timestamp(serv.initial_ts)) as month,
+	(SELECT t2.id FROM taxi_stands t2 ORDER BY ST_Distance(t2.location, serv.initial_point) LIMIT 1),
+	(SELECT t2.id FROM taxi_stands t2 ORDER BY ST_Distance(t2.location, serv.final_point) LIMIT 1),
+	count(*),  sum(EXTRACT(EPOCH FROM(to_timestamp(serv.final_ts)-to_timestamp(serv.initial_ts)))/60)
+	from taxi_services as serv
+	where serv.taxi_id=37
+	group by 1,2,3,4,5 order by 6 DESC;
+
+
+-- ----------------------------------------------------------------------
 select date_part('hour', to_timestamp(serv.initial_ts)) as hour,
  date_part('day', to_timestamp(serv.initial_ts)) as day,
  date_part('month', to_timestamp(serv.initial_ts)) as month,
