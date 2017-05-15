@@ -46,19 +46,33 @@ def load_into_local():
 
 
 def load_into_services():
-    # cur.execute("""select n_licenca from taxi;""")
-    # taxis_ids = cur.fetchall()
-    taxis_ids = [(37,)]
+    cur.execute("""select n_licenca from taxi;""")
+    taxis_ids = cur.fetchall()
+    # taxis_ids = [(37,)]
     for taxi in taxis_ids:
         taxi_id = taxi[0]
         print(taxi_id)
         cur.execute("""select date_part('hour', to_timestamp(initial_ts)) as hour,
                               date_part('day', to_timestamp(initial_ts)) as day,
                               date_part('month', to_timestamp(initial_ts)) as month,
-                              initial_point, final_point, count(*), sum(fi)
-                       from taxi_services where taxi_id = %s""", [(taxi_id)])
+                              ca1.freguesia, ca2.freguesia, count(*), sum(EXTRACT(EPOCH FROM(to_timestamp(serv.final_ts) - to_timestamp(serv.initial_ts)))/60)
+                       from taxi_services as serv, caop as ca1, caop as ca2 where taxi_id = %s
+                       and ca1.concelho = 'PORTO' and ca2.concelho = 'PORTO'
+                       and st_contains(ca1.geom, serv.initial_point) and st_contains(ca2.geom, serv.final_point)
+                       GROUP BY  1,2,3,4,5 order by 6 ASC ;
+                       """, [(taxi_id)])
         all_rows = cur.fetchall()
-        print(all_rows)
+        print(len(all_rows))
+        # for row in all_rows:
+            # hora = row[0]
+            # dia = row[1]
+            # mes = row[2]
+            # freg_inicio = row[3]
+            # freg_fim = row[4]
+            # n_viagens = row[5]
+            # print(n_viagens)
+            # tempo_total = row[6]
+            # print(str(hora) + " " + str(dia) + " " + str(mes) + " " + freg_inicio + " " + freg_fim + " " + str(n_viagens) + " " + str(tempo_total))
 
 
 if __name__ == "__main__":
