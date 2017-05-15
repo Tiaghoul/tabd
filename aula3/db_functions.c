@@ -190,7 +190,7 @@ int c_db_connect(void) {
 }
 
 void init_my_predicates(){
-     YAP_UserCPredicate("db_connect",c_db_connect,5);
+	 YAP_UserCPredicate("db_connect",c_db_connect,5);
 	 YAP_UserCPredicate("db_disconnect",c_db_disconnect,1);
 	 YAP_UserCPredicate("db_arity",c_db_arity,3);
 	 YAP_UserCPredicate("db_query",c_db_query,3);
