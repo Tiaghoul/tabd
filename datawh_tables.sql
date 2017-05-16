@@ -31,14 +31,12 @@ CREATE TABLE local (
 
 CREATE TABLE services (
   taxi_id INTEGER NOT NULL CHECK(taxi_id>0),
-  tempo_fim_id INTEGER NOT NULL CHECK(tempo_fim_id>0),
   tempo_inicio_id INTEGER NOT NULL CHECK(tempo_inicio_id>0),
-  n_viagens INTEGER NOT NULL CHECK(n_viagens>=0),
-  tempo_total INTEGER NOT NULL CHECK(tempo_total>0),
-  local_fim_id INTEGER NOT NULL CHECK(local_fim_id>0),
   local_inicio_id INTEGER NOT NULL CHECK(local_inicio_id>0),
+  local_fim_id INTEGER NOT NULL CHECK(local_fim_id>0),
+  tempo_total INTEGER NOT NULL CHECK(tempo_total>=0),
+  n_viagens INTEGER NOT NULL CHECK(n_viagens>=0),
   FOREIGN KEY(taxi_id) REFERENCES taxi(taxi_id),
-  FOREIGN KEY(tempo_fim_id) REFERENCES tempo(tempo_id),
   FOREIGN KEY(tempo_inicio_id) REFERENCES tempo(tempo_id),
   FOREIGN KEY(local_fim_id) REFERENCES local(local_id),
   FOREIGN KEY(local_inicio_id) REFERENCES local(local_id)
