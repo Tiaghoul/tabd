@@ -46,38 +46,46 @@ def load_into_local():
 
 
 def load_into_services():
-    cur.execute("""select n_licenca from taxi;""")
-    taxis_ids = cur.fetchall()
-    # taxis_ids = [(37,)]
+    # cur.execute("""select n_licenca from taxi;""")
+    # taxis_ids = cur.fetchall()
+    taxis_ids = [(37,)]
     for taxi in taxis_ids:
         taxi_id = taxi[0]
         print(taxi_id)
         cur.execute("""select date_part('hour', to_timestamp(initial_ts)) as hour,
                               date_part('day', to_timestamp(initial_ts)) as day,
                               date_part('month', to_timestamp(initial_ts)) as month,
-                              ca1.freguesia, ca2.freguesia, count(*), sum(EXTRACT(EPOCH FROM(to_timestamp(serv.final_ts) - to_timestamp(serv.initial_ts)))/60)
-                       from taxi_services as serv, caop as ca1, caop as ca2 where taxi_id = %s
-                       and ca1.concelho = 'PORTO' and ca2.concelho = 'PORTO'
-                       and st_contains(ca1.geom, serv.initial_point) and st_contains(ca2.geom, serv.final_point)
-                       GROUP BY  1,2,3,4,5 order by 6 ASC ;
-                       """, [(taxi_id)])
+                              (SELECT ts1.id from taxi_stands as ts1 ORDER BY st_distance(ts1.location, serv.initial_point) LIMIT 1),
+                              (SELECT ts1.id from taxi_stands as ts1 ORDER BY st_distance(ts1.location, serv.final_point) LIMIT 1),
+                              count(*), sum(EXTRACT(EPOCH FROM(to_timestamp(serv.final_ts) - to_timestamp(serv.initial_ts)))/60)
+                       from taxi_services as serv where taxi_id = %s GROUP BY  1,2,3,4,5 order by 6 DESC;""", [(taxi_id)])
+
         all_rows = cur.fetchall()
-        print(len(all_rows))
-        # for row in all_rows:
-            # hora = row[0]
-            # dia = row[1]
-            # mes = row[2]
-            # freg_inicio = row[3]
-            # freg_fim = row[4]
-            # n_viagens = row[5]
-            # print(n_viagens)
-            # tempo_total = row[6]
-            # print(str(hora) + " " + str(dia) + " " + str(mes) + " " + freg_inicio + " " + freg_fim + " " + str(n_viagens) + " " + str(tempo_total))
+        for row in all_rows:
+            hora = row[0]
+            dia = row[1]
+            mes = row[2]
+            stand_inicio = row[3]
+            stand_fim = row[4]
+            n_viagens = row[5]
+            tempo_total = row[6]
+            cur.execute("""select tempo_id from tempo where hora=%s and dia=%s and mes=%s;""", (hora, dia, mes))
+            fetch_tempo = cur.fetchall()
+            tempo_id = fetch_tempo[0][0]
+            cur.execute("""select local_id from local where stand_id=%s;""", [(stand_inicio)])
+            fetch_inicio = cur.fetchall()
+            local_id_inicio = fetch_inicio[0][0]
+            cur.execute("""select local_id from local where stand_id=%s;""", [(stand_fim)])
+            fetch_fim = cur.fetchall()
+            local_id_fim = fetch_fim[0][0]
+            # print(str(taxi_id) + " " + str(tempo_id) + " " + str(local_id_inicio) + " " + str(local_id_fim) + " " + str(n_viagens) + " " + str(tempo_total))
+            cur.execute("""insert into services(taxi_id, tempo_inicio_id, local_inicio_id, local_fim_id, tempo_total, n_viagens) VALUES(%s, %s, %s, %s, %s, %s);""", (taxi_id, tempo_id, local_id_inicio, local_id_fim, tempo_total, n_viagens))
 
 
 if __name__ == "__main__":
     try:
         conn = psycopg2.connect("dbname='trabalho' user='tiaghoul' host='localhost' password=''")
+        conn.autocommit = True
         cur = conn.cursor()
 
         # load_into_tempo()
