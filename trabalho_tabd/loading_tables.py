@@ -46,19 +46,18 @@ def load_into_local():
 
 
 def load_into_services():
-    # cur.execute("""select n_licenca from taxi;""")
-    # taxis_ids = cur.fetchall()
-    taxis_ids = [(37,)]
-    for taxi in taxis_ids:
+    cur.execute("""select * from taxi;""")
+    taxis = cur.fetchall()
+    for taxi in taxis:
         taxi_id = taxi[0]
-        print(taxi_id)
+        n_licenca = taxi[1]
         cur.execute("""select date_part('hour', to_timestamp(initial_ts)) as hour,
                               date_part('day', to_timestamp(initial_ts)) as day,
                               date_part('month', to_timestamp(initial_ts)) as month,
                               (SELECT ts1.id from taxi_stands as ts1 ORDER BY st_distance(ts1.location, serv.initial_point) LIMIT 1),
                               (SELECT ts1.id from taxi_stands as ts1 ORDER BY st_distance(ts1.location, serv.final_point) LIMIT 1),
                               count(*), sum(EXTRACT(EPOCH FROM(to_timestamp(serv.final_ts) - to_timestamp(serv.initial_ts)))/60)
-                       from taxi_services as serv where taxi_id = %s GROUP BY  1,2,3,4,5 order by 6 DESC;""", [(taxi_id)])
+                       from taxi_services as serv where taxi_id = %s GROUP BY  1,2,3,4,5 order by 6 DESC;""", [(n_licenca)])
 
         all_rows = cur.fetchall()
         for row in all_rows:
