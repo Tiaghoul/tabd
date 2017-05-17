@@ -1,0 +1,27 @@
+-- conta por mês, o nº de viagens totais
+-- select mes, sum(n_viagens) from services s1 INNER JOIN tempo t1 ON s1.tempo_inicio_id = t1.tempo_id GROUP BY mes ORDER BY 1;
+--
+-- conta os serviços de cada taxi
+-- select n_licenca, count(*) from services INNER JOIN taxi USING (taxi_id) GROUP BY 1 ORDER BY 2 DESC;
+--
+-- verifica se existe algum taxi com 0 serviços
+-- select n_licenca from taxi where taxi_id not in (SELECT DISTINCT(taxi_id) from services);
+--
+-- para cada taxi, conta o tempo total de viagens
+-- SELECT n_licenca, sum(tempo_total) from services INNER JOIN taxi USING (taxi_id) GROUP BY 1 ORDER BY 2 DESC;
+--
+-- select s.taxi_id, t.hora, st.nome, sum(n_viagens)
+-- from services as s
+--   INNER JOIN tempo as t on t.tempo_id = s.tempo_inicio_id
+--   INNER JOIN local as l  ON l.local_id=s.local_inicio_id
+--   INNER JOIN stand as st ON st.stand_id=l.stand_id
+-- GROUP BY CUBE (1,2,3);
+--
+-- select l.stand_id, st.nome, count(DISTINCT(t.n_licenca)) from services as s INNER JOIN local as l on l.local_id =  s.local_inicio_id INNER JOIN taxi as t on s.taxi_id = t.taxi_id INNER JOIN stand as st on st.stand_id = l.stand_id  GROUP BY 1,2;
+--
+-- conta o número de serviços das 12h-24h (ou 0h-12h)
+-- select count(*) from services as s INNER JOIN tempo as t on s.tempo_inicio_id = t.tempo_id where t.hora >= 12;
+--
+--
+-- nº de serviços por freguesia
+-- select l.freguesia AS freg, count(taxi_id) as count from services as s INNER JOIN local as l on s.local_inicio_id = l.local_id GROUP BY freg
