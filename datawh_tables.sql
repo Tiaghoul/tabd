@@ -21,12 +21,11 @@ CREATE TABLE stand (
 
 CREATE TABLE local (
   local_id serial,
-  stand_id INTEGER NOT NULL CHECK(stand_id>0),
-  freguesia varchar(30) NOT NULL,
-  concelho varchar(30) NOT NULL,
+  stand_id INTEGER CHECK(stand_id>0),
+  freguesia varchar(100) NOT NULL,
+  concelho varchar(100) NOT NULL,
   PRIMARY KEY(local_id),
   FOREIGN KEY(stand_id) REFERENCES stand(stand_id)
-
 );
 
 CREATE TABLE services (
